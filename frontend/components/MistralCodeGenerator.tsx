@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { CodeDisplay } from './CodeDisplay';
+import { HoverBorderGradient } from './ui/hover-border-gradient';
 
 interface MistralCodeGeneratorProps {
   onCodeGenerated: (code: string) => void;
@@ -49,13 +50,11 @@ export function MistralCodeGenerator({ onCodeGenerated }: MistralCodeGeneratorPr
         placeholder="Enter a mathematical topic"
         className="border border-gray-300 rounded-md px-4 py-2 mr-2"
       />
-      <button
+      <HoverBorderGradient
         onClick={generateCode}
-        disabled={loading}
-        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:bg-blue-300"
       >
         {loading ? 'Generating...' : 'Generate Manim Code'}
-      </button>
+      </HoverBorderGradient>
       {error && <p className="text-red-500 mt-2">{error}</p>}
       {code && <CodeDisplay code={code} />}
     </div>

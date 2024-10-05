@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { FlickeringSkeleton } from './ui/flickering-skeleton';
 
 interface VideoGeneratorProps {
   code: string | null;
@@ -53,6 +54,11 @@ export function VideoGenerator({ code, onVideoGenerated }: VideoGeneratorProps) 
       >
         {loading ? 'Generating Video...' : 'Generate Video from Code'}
       </button>
+      {loading && (
+        <div className="mt-4">
+          <FlickeringSkeleton className="h-64 w-full" />
+        </div>
+      )}
       {error && <p className="text-red-500 mt-2">{error}</p>}
     </div>
   );

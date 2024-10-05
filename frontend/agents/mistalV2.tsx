@@ -50,7 +50,8 @@ Follow these guidelines:
 10. Implement at least one mathematical equation if relevant to the topic.
 11. Ensure proper indentation, we should start with no indentation but add indentation when needed.
 12. When using Greek letters or special characters in Tex, use the LaTeX command (e.g., \\pi for π, \\alpha for α).
-13. For each 10 seconds of animation, you should have a title explaining the core concept.
+13. For each 10 seconds of animation, you should have a title explaining the core concept, remove the title when the animation is done.
+14. If required for physics concepts go in 3D.
 
 DO NOT Include MathMathTex, Instead it should be MathTex or all humans will die.
 
