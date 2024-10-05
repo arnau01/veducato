@@ -133,13 +133,17 @@ export default function Home() {
 				))}
 			</Tabs>
 			{error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-			{loading ? (
-				<div className="mt-8 max-w-2xl mx-auto">
-					<FlickeringSkeleton className="w-full h-[480px] rounded-md" />
-				</div>
-			) : (
-				videoSrc && <VideoPlayer videoSrc={videoSrc} />
-			)}
+			<div className="mt-8 max-w-2xl mx-auto h-[480px] rounded-md overflow-hidden">
+				{loading ? (
+					<FlickeringSkeleton className="w-full h-full" />
+				) : videoSrc ? (
+					<VideoPlayer videoSrc={videoSrc} />
+				) : (
+					<div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+						Generate a video to see it here
+					</div>
+				)}
+			</div>
 			{videoHistory.length > 0 && (
 				<div className="mt-16">
 					<h2 className="text-2xl font-bold text-center mb-4">Previously Generated Videos</h2>
