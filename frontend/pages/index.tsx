@@ -2,6 +2,8 @@ import Image from "next/image";
 import localFont from "next/font/local";
 import axios from "axios";
 import { useState } from "react";
+import { VideoGenerator } from "@/components/VideoGenerator";
+import { VideoPlayer } from "@/components/VideoPlayer";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -19,11 +21,11 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function handleGenerateVideo() {
+  async function handleGenerateVideo(topic: string) {
     setLoading(true)
     setError(null)
     try {
-      const response = await axios.post('http://127.0.0.1:5000/api/manim', {}, {
+      const response = await axios.post('http://127.0.0.1:5000/api/manim', { topic }, {
         withCredentials: true,
         headers: {
           'Content-Type': 'application/json',
@@ -46,22 +48,10 @@ export default function Home() {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Next.js with Manim</h1>
-      <button 
-        onClick={handleGenerateVideo} 
-        className="bg-blue-500 text-white p-2 rounded mb-4 disabled:bg-gray-400"
-        disabled={loading}
-      >
-        {loading ? 'Generating...' : 'Generate Video'}
-      </button>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-      {videoSrc && (
-        <video controls className="w-full max-w-2xl">
-          <source src={videoSrc} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-      )}
+    <div className={`container mx-auto p-4 ${geistSans.variable} ${geistMono.variable} font-sans`}>
+      <VideoGenerator onSubmit={handleGenerateVideo} isLoading={loading} />
+      {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+      {videoSrc && <VideoPlayer videoSrc={videoSrc} />}
     </div>
   )
 }
