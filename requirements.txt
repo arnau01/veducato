@@ -9,3 +9,4 @@ tqdm
 networkx
 pygments
 pydub
+mistralai
