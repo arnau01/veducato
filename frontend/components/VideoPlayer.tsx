@@ -2,7 +2,7 @@ import { useRef, useEffect } from 'react';
 
 interface VideoPlayerProps {
   videoSrc: string;
-  audioSrc: string;
+  audioSrc?: string;
 }
 
 export function VideoPlayer({ videoSrc, audioSrc }: VideoPlayerProps) {
