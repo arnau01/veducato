@@ -1,7 +1,7 @@
 // frontend/pages/api/generateManimCode.ts
 
 import { NextApiRequest, NextApiResponse } from 'next';
-import { generateManimCodeV2 } from '@/agents/mistalV2';
+import { generateManimCode } from '@/agents/manimCodePrompt';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -14,8 +14,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   console.log('Received request to generate code for topic:', topic);
 
   try {
-    console.log('Calling generateManimCodeV2 function...');
-    const code = await generateManimCodeV2(topic, instructions);
+    console.log('Calling generateManimCode function...');
+    const code = await generateManimCode(topic, instructions);
     console.log('Code generation successful. Length:', code.length);
     res.status(200).json({ code });
   } catch (error) {

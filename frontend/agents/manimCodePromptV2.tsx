@@ -19,21 +19,16 @@ function escapeLatex(text: string): string {
 }
 
 function postProcessManimCode(code: string): string {
-    return code
-      .replace(/(\W)'(\\?[a-zA-Z]+)'/g, '$1r\'$2\'')
-      .replace(/(\W)"(\\?[a-zA-Z]+)"/g, '$1r"$2"');
-  }
+  return code
+    .replace(/(\W)'(\\?[a-zA-Z]+)'/g, '$1r\'$2\'')
+    .replace(/(\W)"(\\?[a-zA-Z]+)"/g, '$1r"$2"');
+}
 
-export async function generateManimCodeV2(topic: string, instructions: string) {
-  // First, generate the instruction
-
-  console.log('Generated instructions:', instructions);
+export async function generateManimCode(topic: string) {
+  console.log('Generating Manim code for topic:', topic);
 
   const prompt = `
-Generate the body of the 'construct' method for a Manim Scene class about "${escapeLatex(topic)}". 
-Use the following visual description as a guide for your animation:
-
-${escapeLatex(instructions)}
+Generate the body of the 'construct' method for a Manim Scene class about "${escapeLatex(topic)}".
 
 Follow these guidelines:
 1. Include the 'def construct(self):' line and any class definition.
@@ -50,6 +45,9 @@ Follow these guidelines:
 12. When using Greek letters or special characters in Tex, use the LaTeX command (e.g., \\pi for π, \\alpha for α).
 13. For each 10 seconds of animation, you should have a title explaining the core concept, remove the title when the animation is done.
 14. If required for physics concepts go in 3D.
+15. Ensure the animation is smooth and visually appealing.
+16. Ensure the text is clear and easy to read - not on top of the animation (the top 10% of the height should be for the text, the rest for the animation)
+17. Ensure the text doesn't overlap and as such everytime new text is added, remove the old text.
 
 DO NOT Include MathMathTex, Instead it should be MathTex or all humans will die.
 
@@ -57,9 +55,11 @@ Don't include the imports. Only the body of the code.
 
 Provide only the Python code for the body of the construct method, without any explanations or the method definition itself.
 
-Improve the code to add ensure it doesn't do mistakes regarding manim syntax and mathtex.
+Ensure the code doesn't have mistakes regarding manim syntax and mathtex.
 
-Here is an example of the code you should generate:
+Here are two examples of the code you should generate:
+
+Example 1:
 \`\`\`
 def construct(self):
     plot_axes = Axes(
@@ -100,9 +100,7 @@ def construct(self):
     self.play(AnimationGroup(*[Create(plot) for plot in plots], lag_ratio=0.05))
 \`\`\`
 
-
-
-Here is another example:
+Example 2:
 \`\`\`
 def construct(self):
     title = Tex(r"This is some \LaTeX")
@@ -163,13 +161,13 @@ def construct(self):
   let code = object.constructBody;
   
   if (code.startsWith('    ')) {
-    console.log('code starts with indent, unindenting...', code);
+    console.log('Code starts with indent, unindenting...');
     code = code.split('\n').map(line => line.startsWith('    ') ? line.slice(4) : line).join('\n');
-    console.log('code after unindenting...', code);
+    console.log('Code after unindenting:', code);
   }
 
   code = postProcessManimCode(code);
-  console.log('code after post processing...', code);
+  console.log('Code after post processing:', code);
 
   return code;
 }

@@ -1,7 +1,7 @@
 // frontend/pages/api/instructions.ts
 
 import { NextApiRequest, NextApiResponse } from 'next';
-import { generateManimInstructions } from '@/agents/instructions';
+import { generateManimInstructions } from '@/agents/instructionPrompt';
 
 interface APICallError extends Error {
   name: 'APICallError';

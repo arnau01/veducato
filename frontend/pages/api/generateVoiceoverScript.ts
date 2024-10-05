@@ -1,6 +1,6 @@
 // frontend/pages/api/generateVoiceoverScript.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { generateVoiceoverScript } from '../../agents/voiceoverScript';
+import { generateVoiceoverScript } from '../../agents/voiceoverScriptPrompt';
 
 export default async function handler(
   req: NextApiRequest,
