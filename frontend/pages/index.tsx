@@ -6,6 +6,7 @@ import { VideoPlayer } from "@/components/VideoPlayer";
 import { FlickeringSkeleton } from "@/components/ui/flickering-skeleton";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { InfiniteMovingCards } from "@/components/ui/infinite-moving-cards";
 
 const geistSans = localFont({
 	src: "./fonts/GeistVF.woff",
@@ -45,11 +46,25 @@ const suggestionCategories = {
 	],
 };
 
+interface VideoHistory {
+	topic: string;
+	videoSrc: string;
+}
+
+const fakeVideoHistory: VideoHistory[] = [
+	{ topic: "Pythagorean theorem", videoSrc: "/fake-videos/pythagorean.mp4" },
+	{ topic: "Newton's laws of motion", videoSrc: "/fake-videos/newton-laws.mp4" },
+	{ topic: "Periodic table", videoSrc: "/fake-videos/periodic-table.mp4" },
+	{ topic: "DNA replication", videoSrc: "/fake-videos/dna-replication.mp4" },
+	{ topic: "Fibonacci sequence", videoSrc: "/fake-videos/fibonacci.mp4" },
+];
+
 export default function Home() {
 	const [videoSrc, setVideoSrc] = useState('')
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 	const [activeCategory, setActiveCategory] = useState('math')
+	const [videoHistory, setVideoHistory] = useState<VideoHistory[]>(fakeVideoHistory)
 
 	async function handleGenerateVideo(topic: string) {
 		setLoading(true)
@@ -64,7 +79,12 @@ export default function Home() {
 			if (response.data.error) {
 				throw new Error(response.data.message || 'Unknown error occurred');
 			}
-			setVideoSrc(`data:video/mp4;base64,${response.data.video}`)
+			const newVideoSrc = `data:video/mp4;base64,${response.data.video}`
+			setVideoSrc(newVideoSrc)
+			setVideoHistory(prevHistory => [
+				{ topic, videoSrc: newVideoSrc },
+				...prevHistory.slice(0, 9) // Keep only the last 10 videos
+			])
 		} catch (error) {
 			console.error('Error:', error)
 			if (axios.isAxiosError(error) && error.response) {
@@ -79,15 +99,16 @@ export default function Home() {
 
 	return (
 		<div className={`container mx-auto p-4 ${geistSans.variable} ${geistMono.variable} font-sans`}>
-			<h1 className="text-3xl font-bold text-center mb-6">3Blue1Brown Video Generator</h1>
+			<h1 className="text-3xl font-bold text-center mb-6">1Blue3Brown Video Generator</h1>
 			<VideoGenerator onSubmit={handleGenerateVideo} isLoading={loading} />
 			<Tabs defaultValue="math" className="w-full max-w-2xl mx-auto mt-4">
-				<TabsList className="grid w-full grid-cols-4">
+				<TabsList className="grid w-full grid-cols-4 bg-white">
 					{Object.keys(suggestionCategories).map((category) => (
 						<TabsTrigger
 							key={category}
 							value={category}
 							onClick={() => setActiveCategory(category)}
+							className="text-black data-[state=active]:bg-black"
 						>
 							{category.charAt(0).toUpperCase() + category.slice(1)}
 						</TabsTrigger>
@@ -118,6 +139,34 @@ export default function Home() {
 				</div>
 			) : (
 				videoSrc && <VideoPlayer videoSrc={videoSrc} />
+			)}
+			{videoHistory.length > 0 && (
+				<div className="mt-16">
+					<h2 className="text-2xl font-bold text-center mb-4">Previously Generated Videos</h2>
+					<InfiniteMovingCards
+						items={videoHistory.map(item => ({
+							quote: item.topic,
+							name: "Generated Video",
+							title: "Math Visualization",
+							content: (
+								<div className="flex flex-col items-center">
+									<video
+										src={item.videoSrc}
+										className="w-48 h-36 object-cover rounded-md"
+										controls={false}
+										muted
+										loop
+										autoPlay
+									/>
+									<p className="mt-2 text-sm text-center">{item.topic}</p>
+								</div>
+							)
+						}))}
+						direction="right"
+						speed="slow"
+						className="py-4"
+					/>
+				</div>
 			)}
 		</div>
 	)
