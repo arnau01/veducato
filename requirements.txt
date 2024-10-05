@@ -10,3 +10,5 @@ networkx
 pygments
 pydub
 mistralai
+flask
+flask-cors
