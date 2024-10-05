@@ -3,9 +3,11 @@ import { generateObject } from 'ai';
 import { z } from 'zod';
 import { generateManimInstructions } from './instructions';
 
-export async function generateManimCode(topic: string) {
+export async function generateManimCodeV2(topic: string) {
   // First, generate the instructions
   const instructions = await generateManimInstructions(topic);
+
+  console.log('Generated instructions:', instructions);
 
   const prompt = `
 Generate the body of the 'construct' method for a Manim Scene class about "${topic}". 

@@ -21,9 +21,15 @@ export function MistralCodeGenerator({ onCodeGenerated }: MistralCodeGeneratorPr
     setLoading(true);
     setError(null);
     try {
+      console.log(`Generating instructions for topic: ${topic}`);
+      const instructionsResponse = await axios.post('/api/instructions', { topic });
+      const instructions = instructionsResponse.data;
+      console.log(`Instructions: ${instructions}`);
+
       console.log(`Generating code for topic: ${topic}`);
-      const response = await axios.post('/api/mistral', { topic });
-      const generatedCode = response.data.code;
+      const codeResponse = await axios.post('/api/mistral', { topic, instructions });
+      const generatedCode = codeResponse.data.code;
+      console.log(`Generated code: ${generatedCode}`);
       setCode(generatedCode);
       onCodeGenerated(generatedCode);
     } catch (err) {
