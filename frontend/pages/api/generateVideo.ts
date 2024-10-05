@@ -1,8 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
-import { generateManimInstructions } from '../../agents/instructions';
-import { generateManimCodeV2 } from '../../agents/mistalV2';
-import { generateVoiceoverScript } from '../../agents/voiceoverScript';
 
 export default async function handler(
   req: NextApiRequest,
@@ -12,35 +9,35 @@ export default async function handler(
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { topic } = req.body;
+  const { code } = req.body;
 
-  if (!topic) {
-    return res.status(400).json({ message: 'Topic is required' });
+  if (!code) {
+    return res.status(400).json({ message: 'Manim code is required' });
   }
 
   try {
-    const instructions = await generateManimInstructions(topic);
-
-    const manimCode = await generateManimCodeV2(topic, instructions.visualDescription);
-    
-    const voiceoverScript = await generateVoiceoverScript(topic, instructions.visualDescription, manimCode);
-    
     // Generate video
-    const response = await axios.post('http://127.0.0.1:5000/api/manim', { code: manimCode }, {
+    const videoResponse = await axios.post('http://127.0.0.1:5000/api/manim', { code }, {
       headers: {
         'Content-Type': 'application/json',
       },
     });
-    
-    if (response.data.error) {
-      throw new Error(response.data.message || 'Unknown error occurred');
-    }
-    
-    const videoSrc = `data:video/mp4;base64,${response.data.video}`;
 
-    res.status(200).json({ videoSrc, voiceoverScript });
+    if (videoResponse.data.error) {
+      throw new Error(videoResponse.data.message || 'Unknown error occurred');
+    }
+
+    const videoSrc = `data:video/mp4;base64,${videoResponse.data.video}`;
+
+    res.status(200).json({ videoSrc });
   } catch (error) {
     console.error('Error generating video:', error);
-    res.status(500).json({ message: 'Failed to generate video. Please try again.' });
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data?.message || error.message;
+      const errorStep = error.config?.url;
+      res.status(500).json({ message: `Failed at step: ${errorStep}. Error: ${errorMessage}` });
+    } else {
+      res.status(500).json({ message: 'An unexpected error occurred. Please try again.' });
+    }
   }
 }

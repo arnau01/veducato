@@ -50,13 +50,7 @@ Ensure the script:
 
 Provide the script in the following format:
 {
-  "introduction": { "text": "...", "timing": X },
-  "mainContent": [
-    { "text": "...", "timing": X },
-    { "text": "...", "timing": X },
-    ...
-  ],
-  "conclusion": { "text": "...", "timing": X }
+  "voiceoverScript": "..."
 }
 `;
 

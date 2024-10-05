@@ -21,7 +21,7 @@ export function VideoGenerator({ code, onVideoGenerated }: VideoGeneratorProps) 
     setError(null);
     console.log('code to be sent to backend', code);
     try {
-      const response = await axios.post('http://127.0.0.1:5000/api/manim', { code }, {
+      const response = await axios.post('/api/generateVideo', { code }, {
         withCredentials: true,
         headers: {
           'Content-Type': 'application/json',

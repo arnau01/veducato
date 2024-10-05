@@ -3,7 +3,9 @@ import { generateObject } from 'ai';
 import { z } from 'zod';
 
 export async function generateManimInstructions(topic: string) {
-  const prompt = `
+  try {
+
+    const prompt = `
 Explain ${topic} using visual animations. Break down the concept into its fundamental components, and show how they build up to the main idea for a 60 second video animation. Follow these guidelines:
 
 1. Conceptualization and Simplification:
@@ -80,13 +82,21 @@ Synthesis and Conclusion:
 
 `;
 
-  const { object } = await generateObject({
-    model: mistral('mistral-small-latest'),
-    prompt: prompt,
-    schema: z.object({
-      visualDescription: z.string(),
-    }),
-  });
+    const { object } = await generateObject({
+      model: mistral('mistral-small-latest'),
+      prompt: prompt,
+      schema: z.object({
+        visualDescription: z.string(),
+      }),
+    });
 
-  return object;
+    return object;
+
+  } catch (error: unknown) {
+    if (error instanceof Error && 'response' in error && typeof error.response === 'object' && error.response && 'status' in error.response && error.response.status === 401) {
+      throw new Error('Unauthorized: Invalid API credentials');
+    }
+    // Handle other types of errors
+    throw error;
+  }
 }

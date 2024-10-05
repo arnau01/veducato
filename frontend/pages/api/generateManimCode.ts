@@ -1,7 +1,7 @@
-// frontend/pages/api/instructions.ts
+// frontend/pages/api/generateManimCode.ts
 
 import { NextApiRequest, NextApiResponse } from 'next';
-import { generateManimInstructions } from '@/agents/instructions';
+import { generateManimCodeV2 } from '@/agents/mistalV2';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -9,17 +9,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { topic } = req.body;
+  const { topic, instructions } = req.body;
 
-  console.log('Received request to generate instructions for topic:', topic);
+  console.log('Received request to generate code for topic:', topic);
 
   try {
-    console.log('Calling generateManimInstructions function...');
-    const instructions = await generateManimInstructions(topic);
-    console.log('Instructions generation successful.');
-    res.status(200).json(instructions);
+    console.log('Calling generateManimCodeV2 function...');
+    const code = await generateManimCodeV2(topic, instructions);
+    console.log('Code generation successful. Length:', code.length);
+    res.status(200).json({ code });
   } catch (error) {
-    console.error('Error generating instructions:', error);
+    console.error('Error generating code:', error);
     console.log('Sending 500 Internal Server Error response');
     res.status(500).json({ error: 'Internal Server Error' });
   }

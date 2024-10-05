@@ -11,6 +11,7 @@ export function MistralCodeGenerator({ onVideoGenerated }: MistralCodeGeneratorP
   const [topic, setTopic] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [voiceoverScript, setVoiceoverScript] = useState<string | null>(null);
 
   const generateVideo = async () => {
     if (!topic.trim()) {
@@ -20,14 +21,39 @@ export function MistralCodeGenerator({ onVideoGenerated }: MistralCodeGeneratorP
 
     setLoading(true);
     setError(null);
+    setVoiceoverScript(null);
     try {
-      const response = await axios.post('/api/generateVideo', { topic });
-      const { videoSrc, voiceoverScript } = response.data;
-      onVideoGenerated(videoSrc, voiceoverScript);
+      console.log('Generating instructions for topic:', topic);
+      const instructionsResponse = await axios.post('/api/generateInstructions', { topic });
+      console.log('Instructions generated:', instructionsResponse.data);
+
+      console.log('Generating Manim code');
+      const manimCodeResponse = await axios.post('/api/generateManimCode', { topic, instructions: instructionsResponse.data });
+      console.log('Manim code generated');
+
+      console.log('Generating voiceover script');
+      const voiceoverScriptResponse = await axios.post('/api/generateVoiceoverScript', { 
+        topic, 
+        instructions: instructionsResponse.data, 
+        manimCode: manimCodeResponse.data 
+      });
+      console.log('Voiceover script generated');
+
+      console.log('Generating video');
+      const videoResponse = await axios.post('/api/generateVideo', { manimCode: manimCodeResponse.data });
+      console.log('Video generated');
+      
+      const { videoSrc } = videoResponse.data;
+      const generatedVoiceoverScript = voiceoverScriptResponse.data;
+      
+      console.log('Setting voiceover script and calling onVideoGenerated');
+      setVoiceoverScript(generatedVoiceoverScript);
+      onVideoGenerated(videoSrc, generatedVoiceoverScript);
     } catch (err) {
-      setError('Failed to generate video. Please try again.');
       console.error('Error generating video:', err);
+      setError('Failed to generate video. Please try again.');
     } finally {
+      console.log('Setting loading to false');
       setLoading(false);
     }
   };
@@ -48,6 +74,12 @@ export function MistralCodeGenerator({ onVideoGenerated }: MistralCodeGeneratorP
       {loading && (
         <div className="mt-4">
           <FlickeringSkeleton className="h-64 w-full" />
+        </div>
+      )}
+      {voiceoverScript && (
+        <div className="mt-4">
+          <h3 className="text-lg font-semibold mb-2">Voiceover Script:</h3>
+          <p className="whitespace-pre-wrap">{voiceoverScript}</p>
         </div>
       )}
     </div>
