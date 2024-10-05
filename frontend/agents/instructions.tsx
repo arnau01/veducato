@@ -88,7 +88,6 @@ Synthesis and Conclusion:
     prompt: prompt,
     schema: z.object({
       visualDescription: z.string(),
-      voiceoverScript: z.string(),
     }),
   });
 
