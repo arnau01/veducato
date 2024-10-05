@@ -2,17 +2,6 @@ import { mistral } from '@ai-sdk/mistral';
 import { generateObject } from 'ai';
 import { z } from 'zod';
 
-interface VoiceoverSegment {
-  text: string;
-  timing: number;
-}
-
-interface VoiceoverScript {
-  introduction: VoiceoverSegment;
-  mainContent: VoiceoverSegment[];
-  conclusion: VoiceoverSegment;
-}
-
 function extractKeyPoints(manimCode: string): string[] {
   const lines = manimCode.split('\n');
   const keyPoints: string[] = [];
@@ -33,7 +22,7 @@ export async function generateVoiceoverScript(
   topic: string,
   manimInstructions: { visualDescription: string },
   manimCode: string
-): Promise<VoiceoverScript> {
+): Promise<string> {
   const keyPoints = extractKeyPoints(manimCode);
 
   const prompt = `
@@ -72,24 +61,11 @@ Provide the script in the following format:
 `;
 
   const { object } = await generateObject({
-    model: mistral('mistral-large-latest'),
+    model: mistral('mistral-small-latest'),
     prompt,
     schema: z.object({
-      introduction: z.object({
-        text: z.string(),
-        timing: z.number(),
-      }),
-      mainContent: z.array(
-        z.object({
-          text: z.string(),
-          timing: z.number(),
-        })
-      ),
-      conclusion: z.object({
-        text: z.string(),
-        timing: z.number(),
-      }),
-    }),
+      voiceoverScript: z.string()
+    })
   });
 
   return object;
