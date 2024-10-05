@@ -3,6 +3,7 @@ import axios from "axios";
 import { useState } from "react";
 import { VideoGenerator } from "@/components/VideoGenerator";
 import { VideoPlayer } from "@/components/VideoPlayer";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -50,7 +51,13 @@ export default function Home() {
     <div className={`container mx-auto p-4 ${geistSans.variable} ${geistMono.variable} font-sans`}>
       <VideoGenerator onSubmit={handleGenerateVideo} isLoading={loading} />
       {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-      {videoSrc && <VideoPlayer videoSrc={videoSrc} />}
+      {loading ? (
+        <div className="mt-8 max-w-2xl mx-auto">
+          <Skeleton className="w-full h-[480px] rounded-md" />
+        </div>
+      ) : (
+        videoSrc && <VideoPlayer videoSrc={videoSrc} />
+      )}
     </div>
   )
 }
