@@ -49,58 +49,112 @@ const suggestionCategories = {
 interface VideoHistory {
 	topic: string;
 	videoSrc: string;
+	audioSrc: string;
 }
 
 const fakeVideoHistory: VideoHistory[] = [
-	{ topic: "Pythagorean theorem", videoSrc: "/fake-videos/pythagorean.mp4" },
-	{ topic: "Newton's laws of motion", videoSrc: "/fake-videos/newton-laws.mp4" },
-	{ topic: "Periodic table", videoSrc: "/fake-videos/periodic-table.mp4" },
-	{ topic: "DNA replication", videoSrc: "/fake-videos/dna-replication.mp4" },
-	{ topic: "Fibonacci sequence", videoSrc: "/fake-videos/fibonacci.mp4" },
+	{ topic: "Pythagorean theorem", videoSrc: "/fake-videos/pythagorean.mp4", audioSrc: "" },
+	{ topic: "Newton's laws of motion", videoSrc: "/fake-videos/newton-laws.mp4", audioSrc: "" },
+	{ topic: "Periodic table", videoSrc: "/fake-videos/periodic-table.mp4", audioSrc: "" },
+	{ topic: "DNA replication", videoSrc: "/fake-videos/dna-replication.mp4", audioSrc: "" },
+	{ topic: "Fibonacci sequence", videoSrc: "/fake-videos/fibonacci.mp4", audioSrc: "" },
 ];
 
 export default function Home() {
 	const [videoSrc, setVideoSrc] = useState('')
+	const [audioSrc, setAudioSrc] = useState('')
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 	const [activeCategory, setActiveCategory] = useState('math')
 	const [videoHistory, setVideoHistory] = useState<VideoHistory[]>(fakeVideoHistory)
 
-	async function handleGenerateVideo(topic: string) {
+	// New state for test audio generation
+	const [testAudioSrc, setTestAudioSrc] = useState<string | null>(null);
+	const [testLoading, setTestLoading] = useState(false);
+	const [testError, setTestError] = useState<string | null>(null);
+
+	async function handleGenerateContent(topic: string) {
 		setLoading(true)
 		setError(null)
 		try {
-			const response = await axios.post('http://127.0.0.1:5000/api/manim', { topic }, {
+			// Generate video
+			const videoResponse = await axios.post('http://127.0.0.1:5000/api/manim', { topic }, {
 				withCredentials: true,
-				headers: {
-					'Content-Type': 'application/json',
-				},
+				headers: { 'Content-Type': 'application/json' },
 			})
-			if (response.data.error) {
-				throw new Error(response.data.message || 'Unknown error occurred');
+			
+			if (videoResponse.data.error) {
+				throw new Error(videoResponse.data.message || 'Unknown error occurred');
 			}
-			const newVideoSrc = `data:video/mp4;base64,${response.data.video}`
+			
+			const newVideoSrc = `data:video/mp4;base64,${videoResponse.data.video}`
 			setVideoSrc(newVideoSrc)
+
+			// Generate audio script
+			const scriptResponse = await axios.post('http://127.0.0.1:5000/api/generate-script', { topic }, {
+				withCredentials: true,
+				headers: { 'Content-Type': 'application/json' },
+			});
+
+			if (scriptResponse.data.error) {
+				throw new Error(scriptResponse.data.message || 'Unknown error occurred');
+			}
+
+			// Generate audio using ElevenLabs API route
+			const audioResponse = await axios.post('/api/elevenlabs', {
+				text: scriptResponse.data.script,
+				voiceId: 'Rachel', // Replace with your chosen voice ID
+			});
+
+			if (audioResponse.data.error) {
+				throw new Error(audioResponse.data.error || 'Failed to generate audio');
+			}
+
+			const newAudioSrc = `data:audio/mpeg;base64,${audioResponse.data.audio}`;
+			setAudioSrc(newAudioSrc);
+
+			// Update video history
 			setVideoHistory(prevHistory => [
-				{ topic, videoSrc: newVideoSrc },
-				...prevHistory.slice(0, 9) // Keep only the last 10 videos
+				{ topic, videoSrc: newVideoSrc, audioSrc: newAudioSrc },
+				...prevHistory.slice(0, 9)
 			])
 		} catch (error) {
 			console.error('Error:', error)
-			if (axios.isAxiosError(error) && error.response) {
-				setError(`Failed to generate video: ${error.response.data.message || error.message}`)
-			} else {
-				setError('An unexpected error occurred. Please try again.')
-			}
+			setError('An unexpected error occurred. Please try again.')
 		} finally {
 			setLoading(false)
 		}
 	}
 
+	// New function for test audio generation
+	async function handleTestAudioGeneration() {
+		setTestLoading(true);
+		setTestError(null);
+		try {
+			const testText = "Hello, this is a test of the ElevenLabs API integration.";
+			
+			const audioResponse = await axios.post('/api/elevenlabs', {
+				text: testText
+			});
+
+			if (audioResponse.data.error) {
+				throw new Error(audioResponse.data.error || 'Failed to generate audio');
+			}
+
+			const newAudioSrc = `data:audio/mpeg;base64,${audioResponse.data.audio}`;
+			setTestAudioSrc(newAudioSrc);
+		} catch (error) {
+			console.error('Error:', error);
+			setTestError('An error occurred while testing audio generation.');
+		} finally {
+			setTestLoading(false);
+		}
+	}
+
 	return (
 		<div className={`container mx-auto p-4 ${geistSans.variable} ${geistMono.variable} font-sans`}>
-			<h1 className="text-3xl font-bold text-center mb-6">1Blue3Brown Video Generator</h1>
-			<VideoGenerator onSubmit={handleGenerateVideo} isLoading={loading} />
+			<h1 className="text-3xl font-bold text-center mb-6">1Brown3Blue Video Generator</h1>
+			<VideoGenerator onSubmit={handleGenerateContent} isLoading={loading} />
 			<Tabs defaultValue="math" className="w-full max-w-2xl mx-auto mt-4">
 				<TabsList className="grid w-full grid-cols-4 bg-white">
 					{Object.keys(suggestionCategories).map((category) => (
@@ -122,7 +176,7 @@ export default function Home() {
 									key={index}
 									variant="outline"
 									size="sm"
-									onClick={() => handleGenerateVideo(suggestion)}
+									onClick={() => handleGenerateContent(suggestion)}
 									disabled={loading}
 								>
 									{suggestion}
@@ -137,13 +191,33 @@ export default function Home() {
 				{loading ? (
 					<FlickeringSkeleton className="w-full h-full" />
 				) : videoSrc ? (
-					<VideoPlayer videoSrc={videoSrc} />
+					<VideoPlayer videoSrc={videoSrc} audioSrc={audioSrc} />
 				) : (
 					<div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
-						Generate a video to see it here
+						Generate content to see it here
 					</div>
 				)}
 			</div>
+
+			{/* New section for testing audio generation */}
+			<div className="mt-8 max-w-2xl mx-auto">
+				<h2 className="text-2xl font-bold mb-4">Test Audio Generation</h2>
+				<Button 
+					onClick={handleTestAudioGeneration} 
+					disabled={testLoading}
+				>
+					{testLoading ? 'Generating...' : 'Generate Test Audio'}
+				</Button>
+				{testError && <p className="text-red-500 mt-2">{testError}</p>}
+				{testAudioSrc && (
+					<div className="mt-4">
+						<audio controls src={testAudioSrc}>
+							Your browser does not support the audio element.
+						</audio>
+					</div>
+				)}
+			</div>
+
 			{videoHistory.length > 0 && (
 				<div className="mt-16">
 					<h2 className="text-2xl font-bold text-center mb-4">Previously Generated Videos</h2>
