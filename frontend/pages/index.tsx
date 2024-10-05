@@ -1,6 +1,6 @@
 import localFont from "next/font/local";
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { VideoGenerator } from "@/components/VideoGenerator";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,6 +28,22 @@ export default function Home() {
   const [videoSrc, setVideoSrc] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [generatedSuggestions, setGeneratedSuggestions] = useState<string[]>([])
+
+  useEffect(() => {
+    async function fetchSuggestions() {
+      try {
+        const response = await axios.post('http://127.0.0.1:5000/api/manim', { topic: 'Generate 4 math topic suggestions for a 3Blue1Brown style video' });
+        if (response.data && Array.isArray(response.data.suggestions)) {
+          setGeneratedSuggestions(response.data.suggestions);
+        }
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
+        setGeneratedSuggestions(suggestions); // Fallback to default suggestions
+      }
+    }
+    fetchSuggestions();
+  }, []);
 
   async function handleGenerateVideo(topic: string) {
     setLoading(true)
@@ -60,7 +76,7 @@ export default function Home() {
       <h1 className="text-3xl font-bold text-center mb-6">3Blue1Brown Video Generator</h1>
       <VideoGenerator onSubmit={handleGenerateVideo} isLoading={loading} />
       <div className="max-w-2xl mx-auto mt-4 mb-4 flex flex-wrap justify-center gap-2">
-        {suggestions.map((suggestion, index) => (
+        {generatedSuggestions.map((suggestion, index) => (
           <Button
             key={index}
             variant="outline"
