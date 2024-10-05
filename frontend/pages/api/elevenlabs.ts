@@ -3,7 +3,7 @@ import { ElevenLabsClient } from 'elevenlabs';
 import { Readable } from 'stream';
 
 const elevenlabs = new ElevenLabsClient({
-  apiKey: 'sk_3806144732561226c9633202d3bc46fe9513568f472cfd8c'
+  apiKey: process.env.ELEVENLABS_API_KEY
 });
 
 const DEFAULT_VOICE_ID = 'onwK4e9ZLuTAKqWW03F9';

@@ -6,6 +6,7 @@ export async function generateManimCode(topic: string) {
   const prompt = `
 Generate the body of the 'construct' method for a Manim Scene class about "${topic}". Follow these guidelines:
 1. Include the 'def construct(self):' line and any class definition.
+2. Make it simple and optimised to run quickly
 2. Start directly with the content of the method.
 3. Utilize basic shapes like Circle, Square, Rectangle, or Line.
 4. Implement animations such as Create, FadeIn, Transform, or MoveToTarget.
