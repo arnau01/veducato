@@ -1,6 +1,6 @@
 import localFont from "next/font/local";
-import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { MistralCodeGenerator } from "@/components/MistralCodeGenerator";
 import { VideoGenerator } from "@/components/VideoGenerator";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { FlickeringSkeleton } from "@/components/ui/flickering-skeleton";
@@ -62,6 +62,7 @@ const fakeVideoHistory: VideoHistory[] = [
 ];
 
 export default function Home() {
+<<<<<<< HEAD
 	const [videoSrc, setVideoSrc] = useState('')
 	const [audioSrc, setAudioSrc] = useState('')
 	const [loading, setLoading] = useState(false)
@@ -263,4 +264,25 @@ Thank you for watching this visualization of mathematical concepts.`;
 			)}
 		</div>
 	)
+=======
+  const [manimCode, setManimCode] = useState<string | null>(null);
+  const [videoSrc, setVideoSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    console.log('manimCode to be sent to backend in index.tsx \n', manimCode);
+  }, [manimCode])
+
+  useEffect(() => {
+    console.log('videoSrc in index.tsx', videoSrc);
+  }, [videoSrc])
+
+  return (
+    <div className={`container mx-auto p-4 ${geistSans.variable} ${geistMono.variable} font-sans`}>
+      <h1 className="text-2xl font-bold mb-4">Manim Video Generator</h1>
+      <MistralCodeGenerator onCodeGenerated={setManimCode} />
+      <VideoGenerator code={manimCode} onVideoGenerated={setVideoSrc} />
+      {videoSrc && <VideoPlayer videoSrc={videoSrc} />}
+    </div>
+  );
+>>>>>>> mistral-connector
 }
