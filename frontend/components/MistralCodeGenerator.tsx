@@ -31,7 +31,8 @@ export function MistralCodeGenerator({ onVideoGenerated }: MistralCodeGeneratorP
 
 
       console.log('Generating Manim code');
-      const manimCodeResponse = await axios.post('/api/generateManimCode', { topic, instructions: visualDescription });
+      //const manimCodeResponse = await axios.post('/api/generateManimCode', { topic, instructions: visualDescription });
+      const manimCodeResponse = await axios.post('/api/generateManimCodeV2', { topic });
 
       const manimCode = manimCodeResponse.data.code;
       console.log('Manim code generated', manimCode);

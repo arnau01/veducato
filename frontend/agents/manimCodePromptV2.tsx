@@ -2,65 +2,45 @@ import { mistral } from '@ai-sdk/mistral';
 import { generateObject } from 'ai';
 import { z } from 'zod';
 
-function escapeLatex(text: string): string {
-  return text.replace(/[\\{}$^_~%]/g, '\\$&')
-             .replace(/[πΠ]/g, '\\pi ')
-             .replace(/[αΑ]/g, '\\alpha ')
-             .replace(/[βΒ]/g, '\\beta ')
-             .replace(/[γΓ]/g, '\\gamma ')
-             .replace(/[δΔ]/g, '\\delta ')
-             .replace(/[εΕ]/g, '\\epsilon ')
-             .replace(/[θΘ]/g, '\\theta ')
-             .replace(/[λΛ]/g, '\\lambda ')
-             .replace(/[μΜ]/g, '\\mu ')
-             .replace(/[σΣ]/g, '\\sigma ')
-             .replace(/[φΦ]/g, '\\phi ')
-             .replace(/[ωΩ]/g, '\\omega ');
-}
-
 function postProcessManimCode(code: string): string {
   return code
     .replace(/(\W)'(\\?[a-zA-Z]+)'/g, '$1r\'$2\'')
     .replace(/(\W)"(\\?[a-zA-Z]+)"/g, '$1r"$2"');
 }
 
-export async function generateManimCode(topic: string) {
+export async function generateManimCodeV2(topic: string) {
   console.log('Generating Manim code for topic:', topic);
 
   const prompt = `
-Generate the body of the 'construct' method for a Manim Scene class about "${escapeLatex(topic)}".
+Generate the body of the 'construct' method for a Manim Scene class about "${topic}".
 
 Follow these guidelines:
-1. Include the 'def construct(self):' line and any class definition.
-2. Make it simple and optimised to run quickly
-3. Start directly with the content of the method.
-4. Utilize basic shapes like Circle, Square, Rectangle, or Line.
-5. Implement animations such as Create, FadeIn, Transform, or MoveToTarget.
-6. Add text using Text or \`MathTex\` for LaTeX formatting (e.g., \`MathTex(r"\frac{d}{dx} f(x)g(x) = f(x) \frac{d}{dx} g(x) + g(x) \frac{d}{dx} f(x)")\`).
-7. Use self.play() to execute animations and self.wait() for pauses.
-8. Keep the animation under 60 seconds (roughly 20 animation steps).
-9. Use color constants like RED, BLUE, GREEN, or YELLOW.
-10. Implement at least one mathematical equation if relevant to the topic.
-11. Ensure proper indentation, we should start with no indentation but add indentation when needed.
-12. When using Greek letters or special characters in Tex, use the LaTeX command (e.g., \\pi for π, \\alpha for α).
-13. For each 10 seconds of animation, you should have a title explaining the core concept, remove the title when the animation is done.
-14. If required for physics concepts go in 3D.
-15. Ensure the animation is smooth and visually appealing.
-16. Ensure the text is clear and easy to read - not on top of the animation (the top 10% of the height should be for the text, the rest for the animation)
-17. Ensure the text doesn't overlap and as such everytime new text is added, remove the old text.
+1. Start with 'def construct(self):' and use proper indentation for the method body.
+2. Make it simple and optimised to run quickly.
+3. Utilize basic shapes like Circle, Square, Rectangle, or Line.
+4. Implement animations such as Create, FadeIn, Transform, or MoveToTarget.
+5. Add text using Text or \`MathTex\` for LaTeX formatting (e.g., \`MathTex(r"\\frac{d}{dx} f(x)g(x) = f(x) \\frac{d}{dx} g(x) + g(x) \\frac{d}{dx} f(x)")\`).
+6. Use self.play() to execute animations and self.wait() for pauses.
+7. Keep the animation under 60 seconds (roughly 20 animation steps).
+8. Use color constants like RED, BLUE, GREEN, or YELLOW.
+9. Implement at least one mathematical equation if relevant to the topic.
+10. When using Greek letters or special characters in Tex, use the LaTeX command (e.g., \\pi for π, \\alpha for α).
+11. For each 10 seconds of animation, you should have a title explaining the core concept, remove the title when the animation is done.
+12. If required for physics concepts go in 3D.
+13. Ensure the animation is smooth and visually appealing.
+14. Ensure the text is clear and easy to read - not on top of the animation (the top 10% of the height should be for the text, the rest for the animation).
+15. Ensure the text doesn't overlap and as such every time new text is added, remove the old text.
 
 DO NOT Include MathMathTex, Instead it should be MathTex or all humans will die.
 
-Don't include the imports. Only the body of the code.
-
-Provide only the Python code for the body of the construct method, without any explanations or the method definition itself.
+Don't include any imports. Only provide the body of the construct method.
 
 Ensure the code doesn't have mistakes regarding manim syntax and mathtex.
 
-Here are two examples of the code you should generate:
+Here are three examples of the code structure you should generate:
 
 Example 1:
-\`\`\`
+\`\`\`python
 def construct(self):
     plot_axes = Axes(
         x_range=[0, 1, 0.05],
@@ -101,10 +81,10 @@ def construct(self):
 \`\`\`
 
 Example 2:
-\`\`\`
+\`\`\`python
 def construct(self):
     title = Tex(r"This is some \LaTeX")
-    basel = MathTex(r"\sum_{n=1}^\infty \frac{1}{n^2} = \frac{\pi^2}{6}")
+    basel = MathTex(r"\\sum_{n=1}^\\infty \\frac{1}{n^2} = \\frac{\\pi^2}{6}")
     VGroup(title, basel).arrange(DOWN)
     self.play(
         Write(title),
@@ -134,7 +114,7 @@ def construct(self):
     self.wait()
 
     grid_transform_title = Tex(
-        r"That was a non-linear function \\ applied to the grid"
+        r"That was a non-linear function \\\\ applied to the grid"
     )
     grid_transform_title.move_to(grid_title, UL)
     grid.prepare_for_nonlinear_transform()
@@ -148,6 +128,53 @@ def construct(self):
     self.play(Transform(grid_title, grid_transform_title))
     self.wait()
 \`\`\`
+
+Example 3:
+\`\`\`python
+def construct(self):
+    title = Text("Pythagoras Theorem")
+    self.play(Write(title))
+    self.wait(2)
+
+    # Create shapes
+    square = Square(side_length=2, color=BLUE)
+    triangle = Polygon([0, 0, 0], [2, 0, 0], [2, 2, 0], color=RED)
+    line_a = Line([0, 0, 0], [2, 0, 0], color=GREEN)
+    line_b = Line([2, 0, 0], [2, 2, 0], color=GREEN)
+    line_c = Line([0, 0, 0], [2, 2, 0], color=YELLOW)
+
+    # Display shapes
+    self.play(Create(square))
+    self.play(Create(triangle))
+    self.play(Create(line_a), Create(line_b), Create(line_c))
+    self.wait(2)
+
+    # Add labels
+    label_a = MathTex(r"a").next_to(line_a, DOWN)
+    label_b = MathTex(r"b").next_to(line_b, RIGHT)
+    label_c = MathTex(r"c").next_to(line_c, UR)
+    self.play(Write(label_a), Write(label_b), Write(label_c))
+    self.wait(2)
+
+    # Display Pythagoras theorem equation
+    equation = MathTex(r"a^2 + b^2 = c^2").move_to(UP*2)
+    self.play(Write(equation))
+    self.wait(2)
+
+    # Remove title
+    self.play(FadeOut(title))
+    self.wait(2)
+
+    # Transform shapes
+    self.play(Transform(square, triangle))
+    self.wait(2)
+
+    # Fade out everything
+    self.play(FadeOut(square), FadeOut(triangle), FadeOut(line_a), FadeOut(line_b), FadeOut(line_c), FadeOut(label_a), FadeOut(label_b), FadeOut(label_c), FadeOut(equation))
+    self.wait(2)
+\`\`\`
+
+Provide only the Python code for the body of the construct method, without any additional explanations.
 `;
 
   const { object } = await generateObject({
