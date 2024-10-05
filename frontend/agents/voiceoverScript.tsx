@@ -52,6 +52,8 @@ Provide the script in the following format:
 {
   "voiceoverScript": "..."
 }
+
+We are returning the voiceover script in the format of a JSON object with a single key "voiceoverScript". We need to be extra careful with the format of the JSON control characters. Please escape them properly.
 `;
 
   const { object } = await generateObject({
@@ -59,7 +61,8 @@ Provide the script in the following format:
     prompt,
     schema: z.object({
       voiceoverScript: z.string()
-    })
+    }),
+    maxRetries: 3,
   });
 
   return object.voiceoverScript;

@@ -25,32 +25,39 @@ export function MistralCodeGenerator({ onVideoGenerated }: MistralCodeGeneratorP
     try {
       console.log('Generating instructions for topic:', topic);
       const instructionsResponse = await axios.post('/api/generateInstructions', { topic });
-      console.log('Instructions generated:', instructionsResponse.data);
+
+      const visualDescription = instructionsResponse.data.visualDescription;
+      console.log('Instructions generated:', visualDescription);
+
 
       console.log('Generating Manim code');
-      const manimCodeResponse = await axios.post('/api/generateManimCode', { topic, instructions: instructionsResponse.data });
-      console.log('Manim code generated');
+      const manimCodeResponse = await axios.post('/api/generateManimCode', { topic, instructions: visualDescription });
+
+      const manimCode = manimCodeResponse.data.code;
+      console.log('Manim code generated', manimCode);
 
       console.log('Generating voiceover script');
       const voiceoverScriptResponse = await axios.post('/api/generateVoiceoverScript', { 
         topic, 
-        instructions: instructionsResponse.data, 
-        manimCode: manimCodeResponse.data 
+        instructions: visualDescription, 
+        manimCode: manimCode 
       });
-      console.log('Voiceover script generated');
+
+      const generatedVoiceoverScript = voiceoverScriptResponse.data.voiceoverScript;
+      console.log('Voiceover script generated', generatedVoiceoverScript);
 
       console.log('Generating video');
-      const videoResponse = await axios.post('/api/generateVideo', { manimCode: manimCodeResponse.data });
+      
+      const videoResponse = await axios.post('/api/generateVideo', { code: manimCode });
       console.log('Video generated');
       
       const { videoSrc } = videoResponse.data;
-      const generatedVoiceoverScript = voiceoverScriptResponse.data;
       
       console.log('Setting voiceover script and calling onVideoGenerated');
       setVoiceoverScript(generatedVoiceoverScript);
       onVideoGenerated(videoSrc, generatedVoiceoverScript);
     } catch (err) {
-      console.error('Error generating video:', err);
+      console.error('Error during video generation flow:', err);
       setError('Failed to generate video. Please try again.');
     } finally {
       console.log('Setting loading to false');
