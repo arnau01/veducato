@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 export async function generateManimInstructions(topic: string) {
   const prompt = `
-Explain ${topic} using visual animations. Break down the concept into its fundamental components, and show how they build up to the main idea. Follow these guidelines:
+Explain ${topic} using visual animations. Break down the concept into its fundamental components, and show how they build up to the main idea for a 60 second video animation. Follow these guidelines:
 
 1. Conceptualization and Simplification:
    - Start with the most basic elements of ${topic}
@@ -26,11 +26,12 @@ Explain ${topic} using visual animations. Break down the concept into its fundam
    - Animate transitions between abstract concepts and concrete applications
 
 5. Key Visualizations:
-   - [VISUAL ELEMENT 1] to represent [FUNDAMENTAL CONCEPT 1]
-   - [VISUAL ELEMENT 2] to demonstrate [FUNDAMENTAL CONCEPT 2]
-   - [VISUAL ELEMENT 3] to illustrate [FUNDAMENTAL CONCEPT 3]
-   - [VISUAL ELEMENT 4] to show [FUNDAMENTAL CONCEPT 4]
-   - [VISUAL ELEMENT 5] to explain [FUNDAMENTAL CONCEPT 5]
+   - [VISUAL ELEMENT 1] to represent [FUNDAMENTAL CONCEPT 1] (10 seconds)
+   - [VISUAL ELEMENT 2] to demonstrate [FUNDAMENTAL CONCEPT 2] (10 seconds)
+   - [VISUAL ELEMENT 3] to illustrate [FUNDAMENTAL CONCEPT 3] (10 seconds)
+   - [VISUAL ELEMENT 4] to show [FUNDAMENTAL CONCEPT 4] (10 seconds)
+   - [VISUAL ELEMENT 5] to explain [FUNDAMENTAL CONCEPT 5] (10 seconds)
+   - [VISUAL ELEMENT 6] to show [FUNDAMENTAL CONCEPT 6] (10 seconds)
 
 6. Synthesis and Conclusion:
    - Visually bring together all elements to show the complete picture of ${topic}
