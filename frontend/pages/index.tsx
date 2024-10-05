@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { VideoGenerator } from "@/components/VideoGenerator";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FlickeringSkeleton } from "@/components/ui/flickering-skeleton";
 import { Button } from "@/components/ui/button";
 
 const geistSans = localFont({
@@ -17,7 +18,7 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-const suggestions = [
+const defaultSuggestions = [
   "Explain the Pythagorean theorem",
   "Visualize the Fibonacci sequence",
   "Demonstrate the concept of pi",
@@ -39,7 +40,7 @@ export default function Home() {
         }
       } catch (error) {
         console.error('Error fetching suggestions:', error);
-        setGeneratedSuggestions(suggestions); // Fallback to default suggestions
+        setGeneratedSuggestions(defaultSuggestions);
       }
     }
     fetchSuggestions();
@@ -91,7 +92,7 @@ export default function Home() {
       {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
       {loading ? (
         <div className="mt-8 max-w-2xl mx-auto">
-          <Skeleton className="w-full h-[480px] rounded-md" />
+          <FlickeringSkeleton className="w-full h-[480px] rounded-md" />
         </div>
       ) : (
         videoSrc && <VideoPlayer videoSrc={videoSrc} />

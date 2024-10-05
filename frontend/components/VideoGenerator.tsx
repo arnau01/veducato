@@ -16,7 +16,6 @@ export function VideoGenerator({ onSubmit, isLoading }: VideoGeneratorProps) {
 
   return (
     <div className="max-w-2xl mx-auto mt-10">
-      <h1 className="text-3xl font-bold text-center mb-6">3Blue1Brown Video Generator</h1>
       <Textarea
         placeholder="Enter a math topic for your video..."
         value={topic}
