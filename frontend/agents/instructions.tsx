@@ -21,11 +21,7 @@ Explain ${topic} using visual animations. Break down the concept into its fundam
    - Use animations to demonstrate cause-and-effect relationships
    - Highlight important connections with visual cues (e.g., arrows, color coding)
 
-4. Real-world Applications or Analogies:
-   - Incorporate relevant real-life examples or analogies
-   - Animate transitions between abstract concepts and concrete applications
-
-5. Key Visualizations:
+4. Key Visualizations:
    - [VISUAL ELEMENT 1] to represent [FUNDAMENTAL CONCEPT 1] (10 seconds)
    - [VISUAL ELEMENT 2] to demonstrate [FUNDAMENTAL CONCEPT 2] (10 seconds)
    - [VISUAL ELEMENT 3] to illustrate [FUNDAMENTAL CONCEPT 3] (10 seconds)
@@ -33,7 +29,7 @@ Explain ${topic} using visual animations. Break down the concept into its fundam
    - [VISUAL ELEMENT 5] to explain [FUNDAMENTAL CONCEPT 5] (10 seconds)
    - [VISUAL ELEMENT 6] to show [FUNDAMENTAL CONCEPT 6] (10 seconds)
 
-6. Synthesis and Conclusion:
+5. Synthesis and Conclusion:
    - Visually bring together all elements to show the complete picture of ${topic}
    - Emphasize how individual components contribute to the main idea
 
@@ -85,7 +81,7 @@ Synthesis and Conclusion:
 `;
 
   const { object } = await generateObject({
-    model: mistral('mistral-large-latest'),
+    model: mistral('mistral-small-latest'),
     prompt: prompt,
     schema: z.object({
       visualDescription: z.string(),

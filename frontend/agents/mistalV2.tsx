@@ -21,7 +21,6 @@ function escapeLatex(text: string): string {
 
 function postProcessManimCode(code: string): string {
     return code
-      .replace(/Tex\(/g, 'MathTex(')
       .replace(/(\W)'(\\?[a-zA-Z]+)'/g, '$1r\'$2\'')
       .replace(/(\W)"(\\?[a-zA-Z]+)"/g, '$1r"$2"');
   }
@@ -44,13 +43,16 @@ Follow these guidelines:
 3. Start directly with the content of the method.
 4. Utilize basic shapes like Circle, Square, Rectangle, or Line.
 5. Implement animations such as Create, FadeIn, Transform, or MoveToTarget.
-6. Add text using Text or MathTex for LaTeX formatting (e.g., MathTex(r"\frac{d}{dx} f(x)g(x) = f(x) \frac{d}{dx} g(x) + g(x) \frac{d}{dx} f(x)")).
+6. Add text using Text or \`MathTex\` for LaTeX formatting (e.g., \`MathTex(r"\frac{d}{dx} f(x)g(x) = f(x) \frac{d}{dx} g(x) + g(x) \frac{d}{dx} f(x)")\`).
 7. Use self.play() to execute animations and self.wait() for pauses.
 8. Keep the animation under 60 seconds (roughly 20 animation steps).
 9. Use color constants like RED, BLUE, GREEN, or YELLOW.
 10. Implement at least one mathematical equation if relevant to the topic.
 11. Ensure proper indentation, we should start with no indentation but add indentation when needed.
 12. When using Greek letters or special characters in Tex, use the LaTeX command (e.g., \\pi for π, \\alpha for α).
+13. For each 10 seconds of animation, you should have a title explaining the core concept.
+
+DO NOT Include MathMathTex, Instead it should be MathTex or all humans will die.
 
 Don't include the imports. Only the body of the code.
 
@@ -97,6 +99,57 @@ def construct(self):
     self.play(Write(title))
     self.play(Create(plot_axes), Create(plot_labels), Create(extras))
     self.play(AnimationGroup(*[Create(plot) for plot in plots], lag_ratio=0.05))
+\`\`\`
+
+
+
+Here is another example:
+\`\`\`
+def construct(self):
+    title = Tex(r"This is some \LaTeX")
+    basel = MathTex(r"\sum_{n=1}^\infty \frac{1}{n^2} = \frac{\pi^2}{6}")
+    VGroup(title, basel).arrange(DOWN)
+    self.play(
+        Write(title),
+        FadeIn(basel, shift=UP),
+    )
+    self.wait()
+
+    transform_title = Tex("That was a transform")
+    transform_title.to_corner(UP + LEFT)
+    self.play(
+        Transform(title, transform_title),
+        LaggedStart(*[FadeOut(obj, shift=DOWN) for obj in basel]),
+    )
+    self.wait()
+
+    grid = NumberPlane(x_range=(-10, 10, 1), y_range=(-6.0, 6.0, 1))
+    grid_title = Tex("This is a grid")
+    grid_title.scale(1.5)
+    grid_title.move_to(transform_title)
+
+    self.add(grid, grid_title)
+    self.play(
+        FadeOut(title),
+        FadeIn(grid_title, shift=DOWN),
+        Create(grid, run_time=3, lag_ratio=0.1),
+    )
+    self.wait()
+
+    grid_transform_title = Tex(
+        r"That was a non-linear function \\ applied to the grid"
+    )
+    grid_transform_title.move_to(grid_title, UL)
+    grid.prepare_for_nonlinear_transform()
+    self.play(
+        grid.animate.apply_function(
+            lambda p: p + np.array([np.sin(p[1]), np.sin(p[0]), 0])
+        ),
+        run_time=3,
+    )
+    self.wait()
+    self.play(Transform(grid_title, grid_transform_title))
+    self.wait()
 \`\`\`
 `;
 
