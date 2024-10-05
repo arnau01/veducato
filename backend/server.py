@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 @app.route('/', methods=['GET'])
 def home():
     logger.debug("Received GET request at '/'")
-    return "Hello World"
+    return "Hello a16z and Mistral_"
 
 @app.route('/api/hello', methods=['GET'])
 def api_hello():
@@ -36,7 +36,11 @@ def manim_api():
         return response
     
     try:
-        video_base64 = run_manim_code()
+        manim_code = request.json.get('code')
+        if not manim_code:
+            return jsonify({'error': 'No Manim code provided'}), 400
+        
+        video_base64 = run_manim_code(manim_code)
         logger.debug("Video generated successfully")
         return jsonify({'video': video_base64})
     except Exception as e:

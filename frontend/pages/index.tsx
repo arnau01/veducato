@@ -1,6 +1,6 @@
 import localFont from "next/font/local";
-import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { MistralCodeGenerator } from "@/components/MistralCodeGenerator";
 import { VideoGenerator } from "@/components/VideoGenerator";
 import { VideoPlayer } from "@/components/VideoPlayer";
 
@@ -16,41 +16,23 @@ const geistMono = localFont({
 });
 
 export default function Home() {
-  const [videoSrc, setVideoSrc] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [manimCode, setManimCode] = useState<string | null>(null);
+  const [videoSrc, setVideoSrc] = useState<string | null>(null);
 
-  async function handleGenerateVideo(topic: string) {
-    setLoading(true)
-    setError(null)
-    try {
-      const response = await axios.post('http://127.0.0.1:5000/api/manim', { topic }, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      if (response.data.error) {
-        throw new Error(response.data.message || 'Unknown error occurred');
-      }
-      setVideoSrc(`data:video/mp4;base64,${response.data.video}`)
-    } catch (error) {
-      console.error('Error:', error)
-      if (axios.isAxiosError(error) && error.response) {
-        setError(`Failed to generate video: ${error.response.data.message || error.message}`)
-      } else {
-        setError('An unexpected error occurred. Please try again.')
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
+  useEffect(() => {
+    console.log('manimCode to be sent to backend in index.tsx \n', manimCode);
+  }, [manimCode])
+
+  useEffect(() => {
+    console.log('videoSrc in index.tsx', videoSrc);
+  }, [videoSrc])
 
   return (
     <div className={`container mx-auto p-4 ${geistSans.variable} ${geistMono.variable} font-sans`}>
-      <VideoGenerator onSubmit={handleGenerateVideo} isLoading={loading} />
-      {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+      <h1 className="text-2xl font-bold mb-4">Manim Video Generator</h1>
+      <MistralCodeGenerator onCodeGenerated={setManimCode} />
+      <VideoGenerator code={manimCode} onVideoGenerated={setVideoSrc} />
       {videoSrc && <VideoPlayer videoSrc={videoSrc} />}
     </div>
-  )
+  );
 }
