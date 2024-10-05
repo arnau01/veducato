@@ -1,7 +1,6 @@
 import { mistral } from '@ai-sdk/mistral';
 import { generateObject } from 'ai';
 import { z } from 'zod';
-import { generateManimInstructions } from './instructions';
 
 function escapeLatex(text: string): string {
   return text.replace(/[\\{}$^_~%]/g, '\\$&')
@@ -25,9 +24,8 @@ function postProcessManimCode(code: string): string {
       .replace(/(\W)"(\\?[a-zA-Z]+)"/g, '$1r"$2"');
   }
 
-export async function generateManimCodeV2(topic: string) {
-  // First, generate the instructions
-  const instructions = await generateManimInstructions(topic);
+export async function generateManimCodeV2(topic: string, instructions: string) {
+  // First, generate the instruction
 
   console.log('Generated instructions:', instructions);
 
@@ -35,7 +33,7 @@ export async function generateManimCodeV2(topic: string) {
 Generate the body of the 'construct' method for a Manim Scene class about "${escapeLatex(topic)}". 
 Use the following visual description as a guide for your animation:
 
-${escapeLatex(instructions.visualDescription)}
+${escapeLatex(instructions)}
 
 Follow these guidelines:
 1. Include the 'def construct(self):' line and any class definition.

@@ -2,7 +2,6 @@ import localFont from "next/font/local";
 import { useState } from "react";
 import { MistralCodeGenerator } from "@/components/MistralCodeGenerator";
 import { VideoPlayer } from "@/components/VideoPlayer";
-import { VoiceoverScript } from "@/agents/voiceoverScript";
 
 const geistSans = localFont({
 	src: "./fonts/GeistVF.woff",
@@ -17,9 +16,9 @@ const geistMono = localFont({
 
 export default function Home() {
 	const [videoSrc, setVideoSrc] = useState<string | null>(null);
-	const [voiceoverScript, setVoiceoverScript] = useState<VoiceoverScript | null>(null);
+	const [voiceoverScript, setVoiceoverScript] = useState<string | null>(null);
 
-	const handleVideoGenerated = (videoSrc: string, voiceoverScript: VoiceoverScript) => {
+	const handleVideoGenerated = (videoSrc: string, voiceoverScript: string) => {
 		setVideoSrc(videoSrc);
 		setVoiceoverScript(voiceoverScript);
 	};
