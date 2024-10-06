@@ -25,19 +25,13 @@ export async function generateVoiceoverScript(
   const keyPoints = extractKeyPoints(manimCode);
 
   const prompt = `
-Create a voiceover script for an educational video about "${topic}". The script should align with the following key points:
+Create a brief, engaging voiceover script for a educational video on "${topic}". Cover these key points:
 
-Key Points:
 ${keyPoints.join('\n')}
 
-Ensure the script:
-- Is conversational and engaging
-- Explains concepts clearly and concisely
-- Aligns with the visual elements described
-- Uses appropriate transitions between segments
-- Avoids technical jargon unless necessary
+Keep it simple, clear, and aligned with the visuals. Use natural language and avoid jargon.
 
-Provide only the text to be spoken, including appropriate paragraph and line breaks. Use correct punctuation to indicate these breaks and pauses. The total duration should be appropriate for a 60-second video.
+Provide only the text to be spoken, including appropriate paragraph and line breaks. Use correct punctuation to indicate these breaks and pauses. The total duration should be appropriate for a 30-second video.
 
 Provide the script in the following format:
 {
