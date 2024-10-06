@@ -185,6 +185,7 @@ Be extremely careful with JSON control characters and ensure that the JSON is va
 `;
 
   try {
+    // return { constructBody: 'def construct(self):\n    pass' };
     const { object } = await generateObject({
     //  model: mistral('mistral-large-latest'),
     model: openai('gpt-4o-mini'),

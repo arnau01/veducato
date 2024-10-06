@@ -10,10 +10,10 @@ export default async function handler(
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { topic, instructions, manimCode } = req.body;
+  const { topic, manimCode } = req.body;
 
-  if (!topic || !instructions || !manimCode) {
-    return res.status(400).json({ message: 'Topic, instructions, and Manim code are required' });
+  if (!topic || !manimCode) {
+    return res.status(400).json({ message: 'Topic and Manim code are required' });
   }
 
   try {

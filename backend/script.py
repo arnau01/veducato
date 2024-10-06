@@ -2,6 +2,8 @@ from manim import *
 import tempfile
 import base64
 import os
+import random
+import numpy as np
 
 config.media_width = "75%"
 config.verbosity = "WARNING"

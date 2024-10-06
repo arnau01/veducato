@@ -8,6 +8,7 @@ import { RainbowButton } from './ui/rainbow-button';
 import { generateManimCodeV2 } from '../agents/manimCodePromptV2';
 import { generateVoiceoverScript } from '../agents/voiceoverScriptPrompt';
 import { Icons } from './ui/icons';
+import { getCodeForTopic, topics } from '../data/examples';
 
 export function MistralCodeGenerator() {
   const [topic, setTopic] = useState('');
@@ -16,29 +17,30 @@ export function MistralCodeGenerator() {
   const [audioSrc, setAudioSrc] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
 
-  const generateVideo = async () => {
+  const generateVideo = async (customTopic?: string) => {
     setIsLoading(true);
     setVideoSrc(null);
     setAudioSrc(null);
     setIsError(false);
 
-    try {
-      const manimCodeResponse = await generateManimCodeV2(topic);
-      const manimCode = manimCodeResponse.constructBody;
-      console.log('Manim code generated', manimCode);
+    const currentTopic = customTopic || topic;
 
-      const voiceoverScript = await generateVoiceoverScript(topic, manimCode);
+    try {
+      let manimCode: string | undefined;
+
+      manimCode = getCodeForTopic(currentTopic);
+      console.log('Manim code before generation', manimCode);
+
+      if (!manimCode) {
+        const manimCodeResponse = await axios.post('/api/generateManimCodeV2', { topic: currentTopic });
+        manimCode = manimCodeResponse.data.constructBody;
+        console.log('Manim code generated', manimCode);
+      }
+
+      const voiceoverScript = await axios.post('/api/generateVoiceoverScript', { topic: currentTopic, manimCode: manimCode });
       console.log('Voiceover script generated', voiceoverScript);
 
-      const [voiceResponse, videoResponse] = await Promise.all([
-        axios.post('/api/generateVoice', { text: voiceoverScript }),
-        axios.post('/api/generateVideo', { code: manimCode })
-      ]);
-
-      const audioBase64 = voiceResponse.data.audio;
-      const audioSrc = `data:audio/mpeg;base64,${audioBase64}`;
-      setAudioSrc(audioSrc);
-      console.log('Voice audio generated');
+      const videoResponse = await axios.post('/api/generateVideo', { code: manimCode });
 
       const { videoSrc: generatedVideoSrc } = videoResponse.data;
       setVideoSrc(generatedVideoSrc);
@@ -52,22 +54,7 @@ export function MistralCodeGenerator() {
     }
   };
 
-  const suggestedTopics = [
-    "Sin Curve and Unit Circle",
-    "Pythagorean Theorem",
-    "Integral Area Under Curve",
-    "Vector Matrices",
-    "Basic Neural Network",
-    "Network Effects",
-    "Complex Numbers",
-    "Elliptic Curves",
-    "Basic Trigonometry",
-    "Speed, Velocity and Acceleration",
-    "Word Embeddings",
-    "Probability Distributions",
-    "Bubble Sort",
-    "Sierpinski Triangle Fractal"
-  ];
+  const suggestedTopics = topics;
 
   return (
     <div className="relative w-full max-w-5xl mx-auto">
@@ -88,7 +75,7 @@ export function MistralCodeGenerator() {
               className="text-xl py-6 px-4 rounded-xl bg-gray-200 text-black placeholder-gray-500 border-2 border-gray-300 focus:border-blue-500 transition duration-300"
             />
             <div className="flex justify-center">
-              <RainbowButton onClick={generateVideo}>
+              <RainbowButton onClick={() => generateVideo()}>
                 {isLoading ? (
                   <>
                     <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
@@ -105,7 +92,10 @@ export function MistralCodeGenerator() {
                 {suggestedTopics.map((suggestedTopic, index) => (
                   <button
                     key={index}
-                    onClick={() => setTopic(suggestedTopic)}
+                    onClick={() => {
+                      setTopic(suggestedTopic);
+                      generateVideo(suggestedTopic);
+                    }}
                     className="px-2 py-0.5 text-xs bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-full transition-colors duration-200"
                   >
                     {suggestedTopic}
