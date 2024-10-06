@@ -5,8 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { FlickeringSkeleton } from './ui/flickering-skeleton';
 import { VideoPlayer } from './VideoPlayer';
 import { RainbowButton } from './ui/rainbow-button';
-import { generateManimCodeV2 } from '../agents/manimCodePromptV2';
-import { generateVoiceoverScript } from '../agents/voiceoverScriptPrompt';
 import { Icons } from './ui/icons';
 import { getCodeForTopic, topics } from '../data/examples';
 
@@ -16,9 +14,11 @@ export function MistralCodeGenerator() {
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const [audioSrc, setAudioSrc] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const generateVideo = async (customTopic?: string) => {
     setIsLoading(true);
+    setIsGenerating(true);
     setVideoSrc(null);
     setAudioSrc(null);
     setIsError(false);
@@ -39,6 +39,7 @@ export function MistralCodeGenerator() {
 
       const voiceoverScript = await axios.post('/api/generateVoiceoverScript', { topic: currentTopic, manimCode: manimCode });
       console.log('Voiceover script generated', voiceoverScript);
+      const text = voiceoverScript.data.voiceoverScript;
 
       const videoResponse = await axios.post('/api/generateVideo', { code: manimCode });
 
@@ -46,11 +47,17 @@ export function MistralCodeGenerator() {
       setVideoSrc(generatedVideoSrc);
       console.log('Video generated');
 
+      const audioResponse = await axios.post('/api/generateVoice', { text });
+      const generatedAudioSrc = `data:audio/mpeg;base64,${audioResponse.data.audio}`;
+      setAudioSrc(generatedAudioSrc);
+      console.log('Audio generated');
+
     } catch (err) {
       console.error('Error during generation:', err);
       setIsError(true);
     } finally {
       setIsLoading(false);
+      setIsGenerating(false);
     }
   };
 
@@ -60,9 +67,9 @@ export function MistralCodeGenerator() {
     <div className="relative w-full max-w-5xl mx-auto">
       <Card className="relative z-10 bg-white/80 text-black">
         <CardHeader>
-          <CardTitle className="text-7xl font-bold text-center bg-gradient-to-b from-black to-gray-400 bg-clip-text text-transparent">Veducato</CardTitle>
+          <CardTitle className="text-7xl font-bold text-center bg-gradient-to-b from-black to-gray-400 bg-clip-text text-transparent">VEDUCATO</CardTitle>
           <p className="text-center text-gray-700 text-lg font-light tracking-wide">
-            Transforming education through captivating visualizations
+            AI Videos for Education
           </p>
         </CardHeader>
         <CardContent>
@@ -71,15 +78,15 @@ export function MistralCodeGenerator() {
               type="text"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              placeholder="Visualise any concept"
+              placeholder="Visualise any concept in maths or physics..."
               className="text-xl py-6 px-4 rounded-xl bg-gray-200 text-black placeholder-gray-500 border-2 border-gray-300 focus:border-blue-500 transition duration-300"
             />
             <div className="flex justify-center">
-              <RainbowButton onClick={() => generateVideo()}>
-                {isLoading ? (
+              <RainbowButton onClick={() => generateVideo()} disabled={isGenerating}>
+                {isGenerating ? (
                   <>
-                    <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-                    Generating...
+                    Generating 
+                    <Icons.spinner className="ml-2 h-4 w-4 animate-spin" />
                   </>
                 ) : (
                   'Generate Video'
@@ -97,6 +104,7 @@ export function MistralCodeGenerator() {
                       generateVideo(suggestedTopic);
                     }}
                     className="px-2 py-0.5 text-xs bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-full transition-colors duration-200"
+                    disabled={isGenerating}
                   >
                     {suggestedTopic}
                   </button>
@@ -107,15 +115,8 @@ export function MistralCodeGenerator() {
               <div className="w-full max-w-[800px] aspect-video">
                 {isLoading && <FlickeringSkeleton className="w-full h-full" />}
                 {isError && <FlickeringSkeleton className="w-full h-full bg-red-200" />}
-                {videoSrc && <VideoPlayer videoSrc={videoSrc} />}
+                {videoSrc && audioSrc && <VideoPlayer videoSrc={videoSrc} audioSrc={audioSrc} />}
               </div>
-              {audioSrc && (
-                <div className="mt-4">
-                  <audio controls src={audioSrc} className="w-full">
-                    Your browser does not support the audio element.
-                  </audio>
-                </div>
-              )}
             </div>
           </div>
         </CardContent>

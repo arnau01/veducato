@@ -37,14 +37,16 @@ Ensure the script:
 - Uses appropriate transitions between segments
 - Avoids technical jargon unless necessary
 
-Provide only the text to be spoken, without any timings or segment numbers. The total duration should be appropriate for a 60-second video.
+Provide only the text to be spoken, including appropriate paragraph and line breaks. Use correct punctuation to indicate these breaks and pauses. The total duration should be appropriate for a 60-second video.
 
 Provide the script in the following format:
 {
-  "voiceoverScript": "..."
+  "voiceoverScript": "Welcome to our video on ${topic}! \n\nLet's begin by exploring... \n\nNext, we'll look at... \n\nTo summarize... \n\nThank you for watching!"
 }
 
-We are returning the voiceover script in the format of a JSON object with a single key "voiceoverScript". We need to be extra careful with the format of the JSON control characters. Please escape them properly.
+We are returning the voiceover script in the format of a JSON object with a single key "voiceoverScript". We need to be extra careful with the format of the JSON control characters. Please escape them properly, especially newline characters (\\n) and quotation marks.
+
+Be extremely careful with the format of the JSON control characters. Please escape them properly, especially newline characters (\\n) and quotation marks.
 `;
 
   const { object } = await generateObject({
@@ -53,7 +55,7 @@ We are returning the voiceover script in the format of a JSON object with a sing
     schema: z.object({
       voiceoverScript: z.string()
     }),
-    maxRetries: 3,
+    maxRetries: 5,
   });
 
   return object.voiceoverScript;

@@ -4,6 +4,7 @@ import base64
 import os
 import random
 import numpy as np
+import scipy.stats as stats
 
 config.media_width = "75%"
 config.verbosity = "WARNING"

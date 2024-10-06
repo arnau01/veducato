@@ -1,8 +1,8 @@
-import { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 
 interface VideoPlayerProps {
   videoSrc: string;
-  audioSrc?: string;
+  audioSrc: string | null;
 }
 
 export function VideoPlayer({ videoSrc, audioSrc }: VideoPlayerProps) {
@@ -20,14 +20,22 @@ export function VideoPlayer({ videoSrc, audioSrc }: VideoPlayerProps) {
         }
       };
 
-      video.addEventListener('play', () => audio.play());
-      video.addEventListener('pause', () => audio.pause());
+      const handlePlay = () => {
+        audio.play().catch(error => console.error('Audio playback failed:', error));
+      };
+
+      const handlePause = () => {
+        audio.pause();
+      };
+
+      video.addEventListener('play', handlePlay);
+      video.addEventListener('pause', handlePause);
       video.addEventListener('seeked', syncAudioVideo);
       video.addEventListener('timeupdate', syncAudioVideo);
 
       return () => {
-        video.removeEventListener('play', () => audio.play());
-        video.removeEventListener('pause', () => audio.pause());
+        video.removeEventListener('play', handlePlay);
+        video.removeEventListener('pause', handlePause);
         video.removeEventListener('seeked', syncAudioVideo);
         video.removeEventListener('timeupdate', syncAudioVideo);
       };
@@ -42,7 +50,7 @@ export function VideoPlayer({ videoSrc, audioSrc }: VideoPlayerProps) {
         className="w-full h-full"
         controls
       />
-      <audio ref={audioRef} src={audioSrc} />
+      {audioSrc && <audio ref={audioRef} src={audioSrc} />}
     </div>
   );
 }

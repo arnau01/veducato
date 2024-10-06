@@ -20,6 +20,8 @@
         "@ai-sdk/anthropic": "^0.0.51",
         "@ai-sdk/mistral": "^0.0.42",
         "@ai-sdk/openai": "^0.0.66",
-        "ai": "^3.4.9"
+        "ai": "^3.4.9",
+        "elevenlabs": "^0.16.1",
+        "strip-final-newline": "^4.0.0"
     }
 }
