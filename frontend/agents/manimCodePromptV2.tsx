@@ -26,10 +26,18 @@ Follow these guidelines:
 8. Use color constants like RED, BLUE, GREEN, or YELLOW.
 9. Implement at least one mathematical equation if relevant to the topic.
 10. When using Greek letters or special characters in Tex, use the LaTeX command (e.g., \\pi for π, \\alpha for α).
-11. For each 10 seconds of animation, you should have a title explaining the core concept, remove the title when the animation is done.
+11. For each 10 seconds of animation, introduce a title in the center of the screen explaining the core concept, then animate it moving upwards to the top 10% of the screen height. Remove the title when the animation for that section is done.
 12. If required for physics concepts go in 3D.
 13. Ensure the animation is smooth and visually appealing.
-14. Ensure the text is clear and easy to read - not on top of the animation (the top 10% of the height should be for the text, the rest for the animation).
+14. Ensure the text is clear and easy to read - keep it in the top 10% of the height, leaving the center and middle for visual content. Use \`animate.to_edge(UP)\` to move the title to the top.
+
+\`\`\`
+title = Text("Pythagorean Theorem", font_size=48)
+self.play(Write(title))
+self.play(title.animate.to_edge(UP))
+self.wait(1)
+\`\`\`
+
 15. Ensure the text doesn't overlap and as such every time new text is added, remove the old text.
 
 DO NOT Include MathMathTex, Instead it should be MathTex or all humans will die.
