@@ -175,26 +175,43 @@ def construct(self):
 \`\`\`
 
 Provide only the Python code for the body of the construct method, without any additional explanations.
+
+It is crucial that you output a json object with the key "constructBody" which is of type string and the value as the code you generate.
+
+Be extremely careful with JSON control characters and ensure that the JSON is valid and escaped properly.
 `;
 
-  const { object } = await generateObject({
-    model: mistral('mistral-large-latest'),
-    prompt: prompt,
-    schema: z.object({
-      constructBody: z.string(),
-    }),
-  });
-
-  let code = object.constructBody;
-  
-  if (code.startsWith('    ')) {
-    console.log('Code starts with indent, unindenting...');
-    code = code.split('\n').map(line => line.startsWith('    ') ? line.slice(4) : line).join('\n');
-    console.log('Code after unindenting:', code);
+  try {
+    const { object } = await generateObject({
+      // model: mistral('mistral-large-latest'),
+      model: mistral('ft:mistral-large-latest:5aa386c9:20241006:58bcf0cf'),
+      prompt: prompt,
+      schema: z.object({
+        constructBody: z.any(),
+      }),
+    });
+    return object;
+  } catch (error) {
+    console.error('Error in generateManimCodeV2:', error);
+    if (error instanceof Error) {
+      throw new Error(`Failed to generate Manim code: ${error.message}`);
+    } else {
+      throw new Error('An unknown error occurred while generating Manim code');
+    }
   }
 
-  code = postProcessManimCode(code);
-  console.log('Code after post processing:', code);
+//   let code = object.constructBody;
+  
+//   if (code.startsWith('    ')) {
+//     console.log('Code starts with indent, unindenting...');
+//     code = code.split('\n').map(line => line.startsWith('    ') ? line.slice(4) : line).join('\n');
+//     console.log('Code after unindenting:', code);
+//   }
 
-  return code;
+//   code = postProcessManimCode(code);
+//   console.log('Code after post processing:', code);
+
+//   return code;
+
+
 }

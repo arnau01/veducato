@@ -16,12 +16,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     console.log('Calling generateManimCode function...');
     const code = await generateManimCodeV2(topic);
-    console.log('Code generation successful. Length:', code.length);
+    // console.log('Code generation successful. Length:', code.constructBody.length);
     res.status(200).json({ code });
   } catch (error) {
     console.error('Error generating code:', error);
-    console.log('Sending 500 Internal Server Error response');
-    res.status(500).json({ error: 'Internal Server Error' });
+    if (error && typeof error === 'object' && 'issues' in error) {
+      console.log('Validation error detected. Sending 400 Bad Request response');
+      res.status(400).json({ error: 'Bad Request', details: error.issues });
+    } else {
+      console.log('Sending 500 Internal Server Error response');
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
   }
 
   console.log('Request processing completed.');
