@@ -3,27 +3,19 @@ import axios from 'axios';
 import { Input } from './ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { FlickeringSkeleton } from './ui/flickering-skeleton';
-import ShinyButton from './ui/shiny-button';
-import { HoverBorderGradient } from './ui/hover-border-gradient';
 import { VideoPlayer } from './VideoPlayer';
-import { BackgroundBeams } from './ui/background-beams';
+import { RainbowButton } from './ui/rainbow-button';
 
 export function MistralCodeGenerator() {
   const [topic, setTopic] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [voiceoverScript, setVoiceoverScript] = useState<string | null>(null);
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
 
   const generateVideo = async () => {
-    if (!topic.trim()) {
-      setError('Please enter a topic');
-      return;
-    }
 
     setIsLoading(true);
     setError(null);
-    setVoiceoverScript(null);
     setVideoSrc(null);
 
     try {
@@ -56,8 +48,7 @@ export function MistralCodeGenerator() {
       
       const { videoSrc: generatedVideoSrc } = videoResponse.data;
       
-      console.log('Setting voiceover script and video source');
-      setVoiceoverScript(generatedVoiceoverScript);
+      console.log('Setting video source');
       setVideoSrc(generatedVideoSrc);
     } catch (err) {
       console.error('Error during video generation flow:', err);
@@ -68,54 +59,66 @@ export function MistralCodeGenerator() {
   };
 
   const suggestedTopics = [
+    "Sin Curve and Unit Circle",
     "Pythagorean Theorem",
-    "Quadratic Equations",
-    "Calculus Basics",
-    "Linear Algebra",
-    "Probability Theory"
+    "Integral Area Under Curve",
+    "Vector Matrices",
+    "Basic Neural Network",
+    "Network Effects",
+    "Complex Numbers",
+    "Elliptic Curves",
+    "Basic Trigonometry",
+    "Speed, Velocity and Acceleration",
+    "Word Embeddings",
+    "Probability Distributions",
+    "Bubble Sort",
+    "Sierpinski Triangle Fractal"
   ];
 
   return (
     <div className="relative w-full max-w-5xl mx-auto">
-      <Card className="relative z-10">
+      <Card className="relative z-10 bg-white/80 text-black">
         <CardHeader>
-          <CardTitle className="text-7xl font-bold text-center bg-gradient-to-b from-neutral-950 to-neutral-400 bg-clip-text text-transparent">Veducato</CardTitle>
-          <p className="text-center text-muted-foreground">Using visualisation to make education digestible</p>
+          <CardTitle className="text-7xl font-bold text-center bg-gradient-to-b from-black to-gray-600 bg-clip-text text-transparent">Veducato</CardTitle>
+          <p className="text-center text-gray-700 text-lg font-light tracking-wide">
+            Transforming education through captivating visualizations
+          </p>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col space-y-4">
+          <div className="flex flex-col space-y-6">
             <Input
               type="text"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              placeholder="Enter a mathematical topic"
+              placeholder="Visualise any concept"
+              className="text-xl py-6 px-4 rounded-xl bg-gray-200 text-black placeholder-gray-500 border-2 border-gray-300 focus:border-blue-500 transition duration-300"
             />
-            <HoverBorderGradient onClick={generateVideo}>
-              {isLoading ? 'Generating...' : 'Generate Video'}
-            </HoverBorderGradient>
+            <div className="flex justify-center">
+              <RainbowButton onClick={generateVideo}>
+                {isLoading ? 'Generating...' : 'Generate Video'}
+              </RainbowButton>
+            </div>
             {error && <p className="text-red-500 mt-2">{error}</p>}
-            {isLoading && <FlickeringSkeleton className="h-64 w-full" />}
             <div className="mt-4">
-              <p className="text-sm font-medium mb-2">Suggested Topics:</p>
+              <p className="text-sm font-medium mb-2 text-gray-700">Suggested Topics:</p>
               <div className="flex flex-wrap gap-2">
                 {suggestedTopics.map((suggestedTopic, index) => (
-                  <ShinyButton
+                  <button
                     key={index}
-                    className="text-xs"
-                    onPress={() => setTopic(suggestedTopic)}
+                    onClick={() => setTopic(suggestedTopic)}
+                    className="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-full transition-colors duration-200"
                   >
                     {suggestedTopic}
-                  </ShinyButton>
+                  </button>
                 ))}
               </div>
             </div>
-            {videoSrc && (
-              <div className="flex justify-center items-center mt-8">
-                <div className="w-full max-w-[640px] aspect-video">
-                  <VideoPlayer videoSrc={videoSrc} />
-                </div>
+            <div className="flex justify-center items-center mt-8">
+              <div className="w-full max-w-[640px] aspect-video">
+                {isLoading && <FlickeringSkeleton className="w-full h-full" />}
+                {videoSrc && <VideoPlayer videoSrc={videoSrc} />}
               </div>
-            )}
+            </div>
           </div>
         </CardContent>
       </Card>
