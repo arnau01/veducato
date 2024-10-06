@@ -1,5 +1,6 @@
 import { mistral } from '@ai-sdk/mistral';
-import { generateObject } from 'ai';
+import { openai } from '@ai-sdk/openai';
+import { generateObject, generateText } from 'ai';
 import { z } from 'zod';
 
 function postProcessManimCode(code: string): string {
@@ -178,17 +179,21 @@ Provide only the Python code for the body of the construct method, without any a
 
 It is crucial that you output a json object with the key "constructBody" which is of type string and the value as the code you generate.
 
+We should always start our value with "def construct(self):" and end it with the closing parenthesis.
+
 Be extremely careful with JSON control characters and ensure that the JSON is valid and escaped properly.
 `;
 
   try {
     const { object } = await generateObject({
-      // model: mistral('mistral-large-latest'),
-      model: mistral('ft:mistral-large-latest:5aa386c9:20241006:58bcf0cf'),
+      model: mistral('mistral-large-latest'),
+    // model: openai('gpt-4o-mini'),
+    //   model: mistral('ft:mistral-large-latest:5aa386c9:20241006:58bcf0cf'),
       prompt: prompt,
       schema: z.object({
-        constructBody: z.any(),
+        constructBody: z.string(),
       }),
+      maxRetries: 10,
     });
     return object;
   } catch (error) {

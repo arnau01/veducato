@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('Calling generateManimCode function...');
     const code = await generateManimCodeV2(topic);
     // console.log('Code generation successful. Length:', code.constructBody.length);
-    res.status(200).json({ code });
+    res.status(200).json(code);
   } catch (error) {
     console.error('Error generating code:', error);
     if (error && typeof error === 'object' && 'issues' in error) {

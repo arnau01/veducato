@@ -36,7 +36,7 @@ export function MistralCodeGenerator() {
       console.log('Generating Manim code');
       const manimCodeResponse = await axios.post('/api/generateManimCodeV2', { topic });
 
-      const manimCode = manimCodeResponse.data.code;
+      const manimCode = manimCodeResponse.data.constructBody;
       console.log('Manim code generated', manimCode);
 
       console.log('Generating voiceover script');
