@@ -1,5 +1,6 @@
 import { mistral } from '@ai-sdk/mistral';
 import { generateObject } from 'ai';
+import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 
 //function postProcessManimCode(code: string): string {
@@ -194,8 +195,9 @@ Be extremely careful with JSON control characters and ensure that the JSON is va
   try {
     // return { constructBody: 'def construct(self):\n    pass' };
     const { object } = await generateObject({
+      model: openai('gpt-4o'),
     //  model: mistral('mistral-large-latest'),
-      model: mistral('ft:mistral-large-latest:5aa386c9:20241006:58bcf0cf'),
+      // model: mistral('ft:mistral-large-latest:5aa386c9:20241006:58bcf0cf'),
       prompt: prompt,
       schema: z.object({
         constructBody: z.string(),
