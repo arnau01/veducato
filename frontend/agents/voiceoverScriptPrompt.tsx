@@ -20,16 +20,12 @@ function extractKeyPoints(manimCode: string): string[] {
 
 export async function generateVoiceoverScript(
   topic: string,
-  visualDescription: string,
   manimCode: string,
 ): Promise<string> {
   const keyPoints = extractKeyPoints(manimCode);
 
   const prompt = `
-Create a voiceover script for a 60-second educational video about "${topic}". The script should align with the following visual description and key points:
-
-Visual Description:
-${visualDescription}
+Create a voiceover script for educational video about "${topic}". The script should align with the following key points:
 
 Key Points:
 ${keyPoints.join('\n')}

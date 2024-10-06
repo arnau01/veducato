@@ -1,13 +1,13 @@
-import { mistral } from '@ai-sdk/mistral';
+//import { mistral } from '@ai-sdk/mistral';
 import { openai } from '@ai-sdk/openai';
-import { generateObject, generateText } from 'ai';
+import { generateObject } from 'ai';
 import { z } from 'zod';
 
-function postProcessManimCode(code: string): string {
-  return code
-    .replace(/(\W)'(\\?[a-zA-Z]+)'/g, '$1r\'$2\'')
-    .replace(/(\W)"(\\?[a-zA-Z]+)"/g, '$1r"$2"');
-}
+//function postProcessManimCode(code: string): string {
+//  return code
+//    .replace(/(\W)'(\\?[a-zA-Z]+)'/g, '$1r\'$2\'')
+//    .replace(/(\W)"(\\?[a-zA-Z]+)"/g, '$1r"$2"');
+//}
 
 export async function generateManimCodeV2(topic: string) {
   console.log('Generating Manim code for topic:', topic);
@@ -186,8 +186,8 @@ Be extremely careful with JSON control characters and ensure that the JSON is va
 
   try {
     const { object } = await generateObject({
-      model: mistral('mistral-large-latest'),
-    // model: openai('gpt-4o-mini'),
+    //  model: mistral('mistral-large-latest'),
+    model: openai('gpt-4o-mini'),
     //   model: mistral('ft:mistral-large-latest:5aa386c9:20241006:58bcf0cf'),
       prompt: prompt,
       schema: z.object({

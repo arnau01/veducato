@@ -5,54 +5,50 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { FlickeringSkeleton } from './ui/flickering-skeleton';
 import { VideoPlayer } from './VideoPlayer';
 import { RainbowButton } from './ui/rainbow-button';
+import { generateManimCodeV2 } from '../agents/manimCodePromptV2';
+import { generateVoiceoverScript } from '../agents/voiceoverScriptPrompt';
 
 export function MistralCodeGenerator() {
   const [topic, setTopic] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
+  const [audioSrc, setAudioSrc] = useState<string | null>(null);
 
   const generateVideo = async () => {
-
     setIsLoading(true);
     setError(null);
     setVideoSrc(null);
+    setAudioSrc(null);
 
     try {
-      console.log('Generating instructions for topic:', topic);
-      const instructionsResponse = await axios.post('/api/generateInstructions', { topic });
-
-      const visualDescription = instructionsResponse.data.visualDescription;
-      console.log('Instructions generated:', visualDescription);
-
-      console.log('Generating Manim code');
-      const manimCodeResponse = await axios.post('/api/generateManimCodeV2', { topic });
-
-      const manimCode = manimCodeResponse.data.constructBody;
+      // Generate Manim code
+      const manimCodeResponse = await generateManimCodeV2(topic);
+      const manimCode = manimCodeResponse.constructBody;
       console.log('Manim code generated', manimCode);
 
-      console.log('Generating voiceover script');
-      const voiceoverScriptResponse = await axios.post('/api/generateVoiceoverScript', { 
-        topic, 
-        instructions: visualDescription, 
-        manimCode: manimCode 
-      });
+      // Generate voiceover script
+      const voiceoverScript = await generateVoiceoverScript(topic, manimCode);
+      console.log('Voiceover script generated', voiceoverScript);
 
-      const generatedVoiceoverScript = voiceoverScriptResponse.data.voiceoverScript;
-      console.log('Voiceover script generated', generatedVoiceoverScript);
+      // Generate voice audio and video in parallel
+      const [voiceResponse, videoResponse] = await Promise.all([
+        axios.post('/api/generateVoice', { text: voiceoverScript }),
+        axios.post('/api/generateVideo', { code: manimCode })
+      ]);
 
-      console.log('Generating video');
-      
-      const videoResponse = await axios.post('/api/generateVideo', { code: manimCode });
-      console.log('Video generated');
-      
+      const audioBase64 = voiceResponse.data.audio;
+      const audioSrc = `data:audio/mpeg;base64,${audioBase64}`;
+      setAudioSrc(audioSrc);
+      console.log('Voice audio generated');
+
       const { videoSrc: generatedVideoSrc } = videoResponse.data;
-      
-      console.log('Setting video source');
       setVideoSrc(generatedVideoSrc);
+      console.log('Video generated');
+
     } catch (err) {
-      console.error('Error during video generation flow:', err);
-      setError('Failed to generate video. Please try again.');
+      console.error('Error during generation:', err);
+      setError('Failed to generate content. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -118,6 +114,13 @@ export function MistralCodeGenerator() {
                 {isLoading && <FlickeringSkeleton className="w-full h-full" />}
                 {videoSrc && <VideoPlayer videoSrc={videoSrc} />}
               </div>
+              {audioSrc && (
+                <div className="mt-4">
+                  <audio controls src={audioSrc} className="w-full">
+                    Your browser does not support the audio element.
+                  </audio>
+                </div>
+              )}
             </div>
           </div>
         </CardContent>

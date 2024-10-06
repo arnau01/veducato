@@ -17,7 +17,7 @@ export default async function handler(
   }
 
   try {
-    const voiceoverScript = await generateVoiceoverScript(topic, instructions.visualDescription, manimCode);
+    const voiceoverScript = await generateVoiceoverScript(topic, manimCode);
     res.status(200).json({ voiceoverScript });
   } catch (error) {
     console.error('Error generating voiceover script:', error);
